@@ -1,6 +1,31 @@
 var express = require('express');
 var Twitter = require("twitter");
+var mongoose = require('mongoose');
 var router = express.Router();
+
+mongoose.connect(process.env.MONGO_URL);
+
+var Tweeters = mongoose.model("Tweeters", {
+  ignored: { type: String }
+});
+
+
+router.post("/ignore", function(req, res) {
+  console.log("getting something");
+  var tweeter = new Tweeters(req.body);
+  console.log(req.body.screen_name);
+  
+  tweeter.ignored = req.body.screen_name;
+  
+  tweeter.save(function(err, screenName) {
+    if (err) {
+      console.log(err);
+      res.status(400).json({ error: "Validation Failed" });
+    }
+    console.log("ignored:", screenName);
+    res.json(screenName);
+  });
+});
 
 function twitterClient(params) {
   return new Twitter({

@@ -4,11 +4,27 @@ angular.module('sif')
 .controller("mainCtrl", function($scope, twitterUser) {
   $scope.tags = [];
   $scope.tweet = "";
+  $scope.ignoredPeeps = [];
 
   $scope.btnStyle = function(ratio) {
     var greenScale = Math.floor(125 * ratio);
     return { 'background-color': 'rgb(0,' + greenScale + ',0)' };
   };
+  
+  $scope.ignore = function(screenName){
+    twitterUser.ignore(screenName)
+    .success(function(data) {
+      console.log(data);
+      $scope.ignoredPeeps.push(data.ignored);
+//      console.log($scope.ignoredPeeps);
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+
+    return false;
+  };
+
 
   $scope.follow = function(screenName) {
     twitterUser.follow(screenName)

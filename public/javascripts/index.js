@@ -7,6 +7,8 @@ angular.module('sif')
   console.log('Sif Online');
 });
 
+'use strict';
+
 angular.module('sif')
 .config(function($stateProvider, $urlRouterProvider){
   $urlRouterProvider.otherwise('/');
@@ -28,11 +30,27 @@ angular.module('sif')
 .controller("mainCtrl", function($scope, twitterUser) {
   $scope.tags = [];
   $scope.tweet = "";
+  $scope.ignoredPeeps = [];
 
   $scope.btnStyle = function(ratio) {
     var greenScale = Math.floor(125 * ratio);
     return { 'background-color': 'rgb(0,' + greenScale + ',0)' };
   };
+  
+  $scope.ignore = function(screenName){
+    twitterUser.ignore(screenName)
+    .success(function(data) {
+      console.log(data);
+      $scope.ignoredPeeps.push(data.ignored);
+//      console.log($scope.ignoredPeeps);
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+
+    return false;
+  };
+
 
   $scope.follow = function(screenName) {
     twitterUser.follow(screenName)
@@ -107,6 +125,20 @@ angular.module('sif')
 'use strict';
 
 angular.module('sif')
+.filter('ignoreFilter', function() {
+  return function(users, ignoredPeeps) {
+    var filteredUsers = {};
+    angular.forEach(users, function(userData, screenName) {
+      if (ignoredPeeps.indexOf(screenName) === -1) {
+        filteredUsers[screenName] = userData;
+      }
+    });
+    return filteredUsers;
+  };
+});
+'use strict';
+
+angular.module('sif')
 .service('FBService', function(urls){
 //   var fb = this;
 
@@ -158,4 +190,11 @@ angular.module('sif')
     return $http.post(urls.apiUrl + "/follow", data);
   };
 
+  this.ignore = function(screenName) {
+    console.log(screenName);
+    var data = withTokens({
+      screen_name: screenName
+    });
+    return $http.post(urls.apiUrl + "/ignore", data);
+  };
 });

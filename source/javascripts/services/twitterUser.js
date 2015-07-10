@@ -24,4 +24,11 @@ angular.module('sif')
     return $http.post(urls.apiUrl + "/follow", data);
   };
 
+  this.ignore = function(screenName) {
+    console.log(screenName);
+    var data = withTokens({
+      screen_name: screenName
+    });
+    return $http.post(urls.apiUrl + "/ignore", data);
+  };
 });
